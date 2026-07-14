@@ -25,6 +25,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-dark);
@@ -33,7 +37,7 @@
             overflow-x: hidden;
         }
 
-        /* --- VIBRANT BACKGROUND ORBS (Amber Theme) --- */
+        /* --- VIBRANT BACKGROUND ORBS & PARTICLES --- */
         .background-effects {
             position: fixed;
             top: 0;
@@ -44,11 +48,20 @@
             z-index: 0;
         }
 
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+        }
+
         .orb {
             position: absolute;
             border-radius: 50%;
             filter: blur(100px);
-            opacity: 0.25;
+            opacity: 0.2;
             animation: float 22s infinite ease-in-out;
         }
 
@@ -89,14 +102,23 @@
         /* --- INTERACTIVE CURSOR TRAIL --- */
         .cursor-trail {
             position: fixed;
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
-            mix-blend-mode: screen;
-            transition: transform 0.1s ease;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
             box-shadow: 0 0 15px var(--accent-1);
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        }
+
+        .cursor-hovered {
+            width: 40px;
+            height: 40px;
+            background: transparent !important;
+            border: 2px solid var(--accent-1);
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.4);
         }
 
         /* --- CONTAINER & LAYOUT --- */
@@ -105,7 +127,7 @@
             z-index: 1;
             max-width: 1100px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 0 20px;
         }
 
         /* --- HERO SECTION --- */
@@ -114,15 +136,17 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            min-height: 75vh;
+            min-height: 100vh;
             justify-content: center;
-            margin-bottom: 50px;
+            position: relative;
+            padding-bottom: 80px;
         }
 
         /* Rotating Profile Ring */
         .profile-container {
             position: relative;
             margin-bottom: 35px;
+            perspective: 1000px;
         }
 
         .profile-ring {
@@ -132,6 +156,11 @@
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
             padding: 4px;
             animation: rotate-ring 12s linear infinite;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .profile-container:hover .profile-ring {
+            transform: scale(1.08) rotateY(180deg);
         }
 
         @keyframes rotate-ring {
@@ -184,6 +213,46 @@
             max-width: 650px;
             margin-bottom: 40px;
             line-height: 1.6;
+        }
+
+        /* --- BOUNCING DOWN ARROW --- */
+        .scroll-down-arrow {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent-1);
+            cursor: pointer;
+            z-index: 10;
+            transition: opacity 0.5s, transform 0.3s;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-down-arrow:hover {
+            color: var(--accent-2);
+            transform: translateX(-50%) scale(1.2);
+        }
+
+        .scroll-down-arrow svg {
+            width: 32px;
+            height: 32px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-5px) translateX(-50%);
+            }
         }
 
         /* --- BUTTONS --- */
@@ -348,11 +417,13 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 30px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: border-color 0.3s, box-shadow 0.3s;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
         }
 
         .card::before {
@@ -368,9 +439,8 @@
         }
 
         .card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 183, 3, 0.3);
-            box-shadow: 0 15px 35px rgba(255, 183, 3, 0.05);
+            border-color: rgba(255, 183, 3, 0.4);
+            box-shadow: 0 15px 35px rgba(255, 183, 3, 0.1);
         }
 
         .card:hover::before {
@@ -380,18 +450,22 @@
         .card-icon {
             font-size: 2.2rem;
             margin-bottom: 18px;
+            transform: translateZ(20px);
+            display: inline-block;
         }
 
         .card h3 {
             font-size: 1.3rem;
             margin-bottom: 12px;
             color: #ffffff;
+            transform: translateZ(15px);
         }
 
         .card p {
             color: var(--text-secondary);
             line-height: 1.6;
             font-size: 0.95rem;
+            transform: translateZ(10px);
         }
 
         /* --- STATS COUNTERS --- */
@@ -519,8 +593,9 @@
 </head>
 <body>
 
-    <!-- Dynamic Glowing Background Effects -->
+    <!-- Dynamic Glowing Background Effects & Responsive Particles -->
     <div class="background-effects">
+        <canvas id="particle-canvas"></canvas>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
@@ -531,14 +606,14 @@
 
     <div class="container">
         <!-- HERO HEADER -->
-        <section class="hero">
+        <section class="hero" id="hero">
             <div class="profile-container">
                 <div class="profile-ring">
                     <div class="profile-img">👨‍💻</div>
                 </div>
             </div>
             <h1 class="name">Robert-Marian Dragan</h1>
-	    <div class="subtitle-tag">Creativity | Innovation</div>
+            <div class="subtitle-tag">Creativity | Innovation</div>
             <p class="tagline">I love bringing solutions in a world full of problems ;)</p>
             
             <div class="social-links">
@@ -555,15 +630,22 @@
                     TryHackMe
                 </a>
             </div>
+
+            <!-- Floating scroll down indicator -->
+            <div class="scroll-down-arrow" id="scrollArrow">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
         </section>
 
         <!-- PROFILE & SKILLS -->
-        <section class="section">
+        <section class="section" id="about">
             <h2 class="section-title">About Me</h2>
             <div class="about-content">
                 <div class="about-text">
-			<p>Hi! I'm <strong>Robert</strong>, an automation enthusiast with background in <strong>software development</strong>, <strong>cyber-security</strong>, <strong>automation</strong> and <strong>LLM agents orchestration</strong>.</p>
-			<p>With <strong>5 years</strong> of experience spanning personal labs, open-source projects, and self-learning, combined with a <strong>six months internship experience</strong> at Schwarz IT KG <strong>(rated "Excellent")</strong>, as well as contributing with a few startups, I have learned to approach complex projects and succesfully bring valuable solutions.</p>
+            <p>Hi! I'm <strong>Robert</strong>, an automation enthusiast with background in <strong>software development</strong>, <strong>cyber-security</strong>, <strong>automation</strong> and <strong>LLM agents orchestration</strong>.</p>
+            <p>With <strong>5 years</strong> of experience spanning personal labs, open-source projects, and self-learning, combined with a <strong>six months internship experience</strong> at Schwarz IT KG <strong>(rated "Excellent")</strong>, as well as contributing with a few startups, I have learned to approach complex projects and succesfully bring valuable solutions.</p>
                 </div>
                 <div>
                     <h4 class="skills-group-title">Development & Automation</h4>
@@ -745,13 +827,152 @@
     </div>
 
     <script>
-        /* --- Cursor Trail --- */
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX - 7 + 'px';
-            cursor.style.top = e.clientY - 7 + 'px';
-            cursor.style.background = `linear-gradient(135deg, var(--accent-1), var(--accent-2))`;
+        /* --- Smooth Scroll and Arrow Control --- */
+        const scrollArrow = document.getElementById('scrollArrow');
+        scrollArrow.addEventListener('click', () => {
+            document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
         });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                scrollArrow.style.opacity = '0';
+                scrollArrow.style.pointerEvents = 'none';
+            } else {
+                scrollArrow.style.opacity = '1';
+                scrollArrow.style.pointerEvents = 'auto';
+            }
+        });
+
+        /* --- Interactive Cursor Trail with Hover Styling --- */
+        const cursor = document.getElementById('cursor');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let cursorX = mouseX;
+        let cursorY = mouseY;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Frame rendering for smooth lerping
+        function animateCursor() {
+            const dx = mouseX - cursorX;
+            const dy = mouseY - cursorY;
+            
+            cursorX += dx * 0.15;
+            cursorY += dy * 0.15;
+            
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Cursor scaling reactions on hovering over interactive components
+        const hoverables = document.querySelectorAll('.social-btn, .card, .skill-tag, .cert-item, .scroll-down-arrow');
+        hoverables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hovered'));
+        });
+
+        /* --- Active 3D Card Hover Tilt Effect --- */
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -12; // Rotate up to 12deg
+                const rotateY = ((x - centerX) / centerX) * 12;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        /* --- Dynamic Canvas Particle Background Network --- */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 183, 3, 0.4)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            const count = Math.min(Math.floor(canvas.width / 15), 80);
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+        window.addEventListener('resize', initParticles);
+
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(251, 133, 0, ${0.15 * (1 - dist/100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function runParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            drawConnections();
+            requestAnimationFrame(runParticles);
+        }
+        runParticles();
+
 
         /* --- Scroll Animation Fades --- */
         const observerOptions = {
@@ -776,7 +997,7 @@
         });
 
         function animateCard(card) {
-            card.style.transform = 'scale(0.97) rotate(1deg)';
+            card.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 card.style.transform = '';
             }, 200);
@@ -815,7 +1036,6 @@
            RADAR CHARTS (SPIDER MAPS) CONFIGURATION
            ========================================================= */
 
-        // Global Chart.js configuration defaults for matching dark-gold styling
         Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
         Chart.defaults.font.family = "'JetBrains Mono', monospace";
         Chart.defaults.font.size = 11;
@@ -829,13 +1049,13 @@
                     max: 5,
                     ticks: {
                         stepSize: 1,
-                        display: false, // Keep it clean
+                        display: false,
                     },
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.08)' // Radial lines
+                        color: 'rgba(255, 255, 255, 0.08)'
                     },
                     angleLines: {
-                        color: 'rgba(255, 255, 255, 0.15)' // Spokes
+                        color: 'rgba(255, 255, 255, 0.15)'
                     },
                     pointLabels: {
                         color: '#ffffff',
@@ -849,7 +1069,7 @@
             },
             plugins: {
                 legend: {
-                    display: false // Hide legend box since it's only one dataset
+                    display: false
                 },
                 tooltip: {
                     backgroundColor: '#111115',
@@ -861,8 +1081,6 @@
             }
         };
 
-        // 1. Language Radar Chart
-        // Mapping scale 1-5 roughly to levels (A2: 2, B2: 3.5, C2/Native: 5)
         const languageCtx = document.getElementById('languageRadar').getContext('2d');
         new Chart(languageCtx, {
             type: 'radar',
@@ -871,8 +1089,8 @@
                 datasets: [{
                     label: 'Language Proficiency',
                     data: [5, 5, 4, 3.5, 1],
-                    backgroundColor: 'rgba(255, 183, 3, 0.15)', // Light fill matching accent
-                    borderColor: '#ffb703', // Solid amber stroke
+                    backgroundColor: 'rgba(255, 183, 3, 0.15)',
+                    borderColor: '#ffb703',
                     borderWidth: 2,
                     pointBackgroundColor: '#ffffff',
                     pointBorderColor: '#ffb703',
@@ -884,7 +1102,6 @@
             options: radarOptions
         });
 
-        // 2. IT Skills Radar Chart (Adjust the scale/points here as you please!)
         const skillsCtx = document.getElementById('skillsRadar').getContext('2d');
         new Chart(skillsCtx, {
             type: 'radar',
@@ -892,9 +1109,9 @@
                 labels: ['Programming', 'Automation', 'Linux SysAdmin', 'Cyber Security', 'Networing', 'Containers'],
                 datasets: [{
                     label: 'Skill Level',
-                    data: [4, 4, 3, 3, 3, 3], // Feel free to modify these numbers (1-5 range)
-                    backgroundColor: 'rgba(251, 133, 0, 0.15)', // Light fill matching orange accent
-                    borderColor: '#fb8500', // Solid orange stroke
+                    data: [4, 4, 3, 3, 3, 3],
+                    backgroundColor: 'rgba(251, 133, 0, 0.15)',
+                    borderColor: '#fb8500',
                     borderWidth: 2,
                     pointBackgroundColor: '#ffffff',
                     pointBorderColor: '#fb8500',
