@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robert-Marian Dragan</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Chart.js CDN for the spider maps -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -117,7 +116,6 @@
             display: inline;
         }
 
-        /* Typing cursor for Tagline */
         .tagline-cursor {
             display: inline-block;
             width: 8px;
@@ -315,7 +313,7 @@
         }
 
         .chart-card:nth-child(2) {
-            animation-delay: -3s; /* Asynchronous floating */
+            animation-delay: -3s; 
         }
 
         @keyframes float-chart {
@@ -458,6 +456,7 @@
             padding: 20px;
             backdrop-filter: blur(10px);
             transition: all 0.4s ease;
+            cursor: pointer;
         }
 
         .cert-item:hover {
@@ -687,7 +686,7 @@
         });
 
         /* --- Real-Time Autotyping Effect for 'Tagline' --- */
-        const taglineText = "I love bringing solutions in a world full of problems ;)";
+        const taglineText = "Welcome to my world!";
         const taglineEl = document.getElementById('tagline-text');
         let taglineIdx = 0;
         
@@ -762,7 +761,21 @@
             });
         }
 
-        /* --- Fast & Dynamic Color Spotlight for Everything --- */
+        /* --- Intersection Observer Dedicated for About Typing Trigger --- */
+        const aboutObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Adjusting threshold requirement high so it definitely waits for scroll down
+                if (entry.isIntersecting) {
+                    startAboutTypewriter();
+                    aboutObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.5 }); // Triggers when at least 50% of the section is visible
+        
+        aboutObserver.observe(document.getElementById('about'));
+
+
+        /* --- Fast & Dynamic Color Spotlight with Sequential Setup & Hover Pause --- */
         const dynamicColors = [
             { bg: 'rgba(255, 89, 94, 0.15)', border: '#ff595e', text: '#ff595e', glow: 'rgba(255, 89, 94, 0.3)' },
             { bg: 'rgba(255, 202, 58, 0.15)', border: '#ffca3a', text: '#ffca3a', glow: 'rgba(255, 202, 58, 0.3)' },
@@ -781,27 +794,75 @@
             el.classList.add('highlighted-dynamic');
         }
 
-        function createCycler(selector, interval) {
+        /* 1. Skill Sequence Loop (Dev -> Cyber) with Hover Pause */
+        function startSequentialSkillsCycler(interval) {
+            const devSkills = Array.from(document.querySelectorAll('#dev-skills .skill-tag'));
+            const cyberSkills = Array.from(document.querySelectorAll('#cyber-skills .skill-tag'));
+            const allSkills = devSkills.concat(cyberSkills);
+            if (allSkills.length === 0) return;
+
+            let index = 0;
+            let isHovered = false;
+
+            function nextHighlight() {
+                if (isHovered) return; // Suspends automatic advancing while user hovers
+                allSkills.forEach(el => el.classList.remove('highlighted-dynamic'));
+                applyDynamicHighlight(allSkills[index]);
+                index = (index + 1) % allSkills.length;
+            }
+
+            allSkills.forEach((el, i) => {
+                el.addEventListener('mouseenter', () => {
+                    isHovered = true;
+                    allSkills.forEach(e => e.classList.remove('highlighted-dynamic'));
+                    applyDynamicHighlight(el);
+                    index = i; // Resumes from this point when mouse leaves
+                });
+                el.addEventListener('mouseleave', () => {
+                    isHovered = false;
+                });
+            });
+
+            setInterval(nextHighlight, interval);
+            nextHighlight();
+        }
+
+        /* 2. Generalized Cycler with Hover Pause logic for Certifications, Projects, Challenges */
+        function createHoverPauseCycler(selector, interval) {
             const elements = document.querySelectorAll(selector);
             if (elements.length === 0) return;
-            let index = 0;
             
-            // Randomly start so everything doesn't pulse in sync
-            index = Math.floor(Math.random() * elements.length);
+            let index = Math.floor(Math.random() * elements.length);
+            let isHovered = false;
 
-            setInterval(() => {
+            function nextHighlight() {
+                if (isHovered) return; // Suspend looping while user hovers
                 elements.forEach(el => el.classList.remove('highlighted-dynamic'));
                 applyDynamicHighlight(elements[index]);
                 index = (index + 1) % elements.length;
-            }, interval);
+            }
+
+            elements.forEach((el, i) => {
+                el.addEventListener('mouseenter', () => {
+                    isHovered = true;
+                    elements.forEach(e => e.classList.remove('highlighted-dynamic'));
+                    applyDynamicHighlight(el); // Stops and forces highlight on target
+                    index = i; // Syncs index to resume from here after mouseout
+                });
+                el.addEventListener('mouseleave', () => {
+                    isHovered = false;
+                });
+            });
+
+            setInterval(nextHighlight, interval);
+            nextHighlight();
         }
 
-        // Fast intervals, asynchronous across sections
-        createCycler('#dev-skills .skill-tag', 600);
-        createCycler('#cyber-skills .skill-tag', 750);
-        createCycler('#certifications .cert-item', 1100);
-        createCycler('#projects .card', 1300);
-        createCycler('#challenges .card', 1500);
+        // Initialize Cyclers
+        startSequentialSkillsCycler(600); // Sequences straight through Dev then Cyber
+        createHoverPauseCycler('#certifications .cert-item', 1100);
+        createHoverPauseCycler('#projects .card', 1300);
+        createHoverPauseCycler('#challenges .card', 1500);
 
 
         /* --- Minimalistic Universe Canvas --- */
@@ -819,7 +880,7 @@
         class Star {
             constructor() {
                 this.reset();
-                this.y = Math.random() * canvas.height; // initial random spread
+                this.y = Math.random() * canvas.height;
             }
             reset() {
                 this.x = Math.random() * canvas.width;
@@ -918,11 +979,8 @@
 
         function initUniverse() {
             cosmicElements = [];
-            // Many stars
             for (let i = 0; i < 150; i++) cosmicElements.push(new Star());
-            // Few planets
             for (let i = 0; i < 5; i++) cosmicElements.push(new Planet());
-            // A couple of rockets
             for (let i = 0; i < 3; i++) cosmicElements.push(new Rocket());
         }
         initUniverse();
@@ -950,37 +1008,30 @@
                 const rotateX = ((y - centerY) / centerY) * -12; 
                 const rotateY = ((x - centerX) / centerX) * 12;
                 
-                // Do not override scale if dynamic cycler is applying it, combine them via transform
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
             });
 
             card.addEventListener('mouseleave', () => {
-                card.style.transform = ''; // Lets css handle fallback (reverts back to class style)
+                card.style.transform = ''; 
             });
         });
 
-        /* --- Scroll Reveal & Intersection Observer --- */
-        const observerOptions = { threshold: 0.05, rootMargin: '0px 0px -50px 0px' };
-        const observer = new IntersectionObserver((entries) => {
+        /* --- Generic Scroll Reveal Observer (Doesn't trigger the typewriting anymore) --- */
+        const generalObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    
-                    if (entry.target.id === 'about') {
-                        startAboutTypewriter();
-                    }
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
 
         document.querySelectorAll('.card, .stat-item, .cert-item, .chart-card').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(25px)';
             el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-            observer.observe(el);
+            generalObserver.observe(el);
         });
-        observer.observe(document.getElementById('about'));
 
         function animateCard(card) {
             const tempTransform = card.style.transform;
