@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robert-Marian Dragan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for the spider maps -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0a0a0f;
-            --bg-card: rgba(255,255,255,0.03);
-            --accent-1: #00d4ff;
-            --accent-2: #0099ff;
-            --accent-3: #00ff88;
+            --bg-dark: #07070a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --accent-1: #ffb703; /* Amber Gold */
+            --accent-2: #fb8500; /* Warm Orange */
+            --accent-3: #d4af37; /* Metallic Gold */
             --text-primary: #ffffff;
-            --text-secondary: rgba(255,255,255,0.6);
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
         }
 
         * {
@@ -30,6 +33,7 @@
             overflow-x: hidden;
         }
 
+        /* --- VIBRANT BACKGROUND ORBS (Amber Theme) --- */
         .background-effects {
             position: fixed;
             top: 0;
@@ -43,75 +47,91 @@
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5;
-            animation: float 20s infinite ease-in-out;
+            filter: blur(100px);
+            opacity: 0.25;
+            animation: float 22s infinite ease-in-out;
         }
 
         .orb-1 {
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             background: var(--accent-1);
-            top: -100px;
+            top: -150px;
             left: -100px;
             animation-delay: 0s;
         }
 
         .orb-2 {
-            width: 500px;
-            height: 500px;
+            width: 600px;
+            height: 600px;
             background: var(--accent-2);
-            bottom: -150px;
+            bottom: -200px;
             right: -150px;
             animation-delay: -5s;
         }
 
         .orb-3 {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: var(--accent-3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 40%;
+            left: 30%;
             animation-delay: -10s;
         }
 
         @keyframes float {
             0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -30px) scale(1.1); }
-            50% { transform: translate(-30px, 50px) scale(0.9); }
-            75% { transform: translate(40px, 20px) scale(1.05); }
+            25% { transform: translate(60px, -40px) scale(1.1); }
+            50% { transform: translate(-40px, 60px) scale(0.9); }
+            75% { transform: translate(50px, 30px) scale(1.05); }
         }
 
+        /* --- INTERACTIVE CURSOR TRAIL --- */
+        .cursor-trail {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 15px var(--accent-1);
+        }
+
+        /* --- CONTAINER & LAYOUT --- */
         .container {
             position: relative;
             z-index: 1;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 20px;
         }
 
+        /* --- HERO SECTION --- */
         .hero {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            min-height: 80vh;
+            min-height: 75vh;
             justify-content: center;
+            margin-bottom: 50px;
         }
 
+        /* Rotating Profile Ring */
         .profile-container {
             position: relative;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         .profile-ring {
-            width: 220px;
-            height: 220px;
+            width: 190px;
+            height: 190px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
             padding: 4px;
-            animation: rotate-ring 8s linear infinite;
+            animation: rotate-ring 12s linear infinite;
         }
 
         @keyframes rotate-ring {
@@ -119,55 +139,57 @@
             to { transform: rotate(360deg); }
         }
 
-        .profile-ring::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: var(--bg-dark);
-            z-index: -1;
-        }
-
         .profile-img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            background: linear-gradient(45deg, #0a1628, #0f2847);
+            background: #111115;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 80px;
+            font-size: 70px;
         }
 
+        /* Header typography with golden glow */
         .name {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(3rem, 8vw, 5rem);
+            font-size: clamp(2.8rem, 7vw, 4.5rem);
             font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            background: linear-gradient(135deg, #ffffff, var(--accent-1));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             animation: glow 3s ease-in-out infinite alternate;
         }
 
         @keyframes glow {
-            from { filter: drop-shadow(0 0 20px rgba(0,212,255,0.3)); }
-            to { filter: drop-shadow(0 0 40px rgba(0,153,255,0.5)); }
+            from { filter: drop-shadow(0 0 15px rgba(255,183,3,0.15)); }
+            to { filter: drop-shadow(0 0 30px rgba(251,133,0,0.3)); }
+        }
+
+        .subtitle-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            letter-spacing: 2px;
+            margin-bottom: 25px;
         }
 
         .tagline {
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             color: var(--text-secondary);
-            max-width: 500px;
+            max-width: 650px;
             margin-bottom: 40px;
             line-height: 1.6;
         }
 
+        /* --- BUTTONS --- */
         .social-links {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -176,56 +198,161 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 15px 30px;
+            padding: 12px 24px;
             background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
             border-radius: 50px;
             color: var(--text-primary);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
 
         .social-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            border-color: var(--accent-2);
-            box-shadow: 0 10px 40px rgba(0,153,255,0.3);
+            transform: translateY(-4px);
+            border-color: var(--accent-1);
+            background: rgba(255, 183, 3, 0.08);
+            box-shadow: 0 10px 30px rgba(255, 183, 3, 0.15);
         }
 
         .social-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
         }
 
+        /* --- PORTFOLIO SECTIONS (With CV-Style Double Slash '//') --- */
         .section {
             margin-top: 100px;
-            padding: 40px 0;
+            padding: 20px 0;
         }
 
         .section-title {
             font-family: 'Syne', sans-serif;
-            font-size: 2.5rem;
-            text-align: center;
+            font-size: 2.2rem;
             margin-bottom: 50px;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
+        .section-title::before {
+            content: '//';
+            color: var(--accent-1);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+        }
+
+        /* --- ABOUT ME & SKILLS GRID --- */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        .about-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .about-text strong {
+            color: #ffffff;
+            border-bottom: 1px dashed var(--accent-1);
+        }
+
+        /* Skills Tags Group */
+        .skills-group-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-1);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .skill-tag {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .skill-tag:hover {
+            background: rgba(255, 183, 3, 0.1);
+            border-color: var(--accent-1);
+            transform: translateY(-2px);
+            color: var(--accent-1);
+        }
+
+        /* --- SPIDER MAPS (RADAR CHARTS) SECTION --- */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-card h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--accent-1);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
+            align-self: flex-start;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            height: 340px;
+        }
+
+        /* --- CARDS GRID (Projects / Challenges) --- */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 25px;
         }
 
         .card {
             background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
 
         .card::before {
@@ -234,16 +361,16 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 2px;
             background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
             transform: scaleX(0);
             transition: transform 0.3s ease;
         }
 
         .card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255,255,255,0.2);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            transform: translateY(-8px);
+            border-color: rgba(255, 183, 3, 0.3);
+            box-shadow: 0 15px 35px rgba(255, 183, 3, 0.05);
         }
 
         .card:hover::before {
@@ -251,78 +378,44 @@
         }
 
         .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 2.2rem;
+            margin-bottom: 18px;
         }
 
         .card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: var(--text-primary);
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: #ffffff;
         }
 
         .card p {
             color: var(--text-secondary);
-            line-height: 1.7;
+            line-height: 1.6;
+            font-size: 0.95rem;
         }
 
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .about-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text-secondary);
-        }
-
-        .about-text strong {
-            color: var(--accent-3);
-        }
-
-        .skills-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .skill-tag {
-            padding: 10px 20px;
-            background: rgba(0,255,136,0.1);
-            border: 1px solid rgba(0,255,136,0.3);
-            border-radius: 30px;
-            font-size: 0.9rem;
-            color: var(--accent-3);
-            transition: all 0.3s ease;
-            cursor: default;
-        }
-
-        .skill-tag:hover {
-            background: rgba(0,255,136,0.2);
-            transform: scale(1.1);
-        }
-
+        /* --- STATS COUNTERS --- */
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 60px;
+            gap: 25px;
+            margin-top: 50px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 50px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 30px;
+            padding: 25px;
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
 
         .stat-item:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
             border-color: var(--accent-1);
         }
 
@@ -330,148 +423,94 @@
             font-family: 'Syne', sans-serif;
             font-size: 3rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            margin-top: 10px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .contact-form {
-            max-width: 600px;
-            margin: 0 auto;
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px 20px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-2);
-            box-shadow: 0 0 20px rgba(0,153,255,0.2);
-        }
-
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 18px 40px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0,212,255,0.4);
-        }
-
-        footer {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .heart {
-            display: inline-block;
-            animation: heartbeat 1.5s infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        .cursor-trail {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: screen;
-            transition: transform 0.1s ease;
-        }
-
+        /* --- CERTIFICATIONS SECTION --- */
         .certifications-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
             gap: 15px;
-            margin-top: 30px;
         }
 
         .cert-item {
             background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 20px;
-            text-align: center;
+            backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
 
         .cert-item:hover {
-            transform: scale(1.05);
-            border-color: var(--accent-3);
+            transform: translateY(-3px);
+            border-color: var(--accent-1);
+            background: rgba(255, 183, 3, 0.03);
         }
 
         .cert-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
         }
 
         .cert-name {
             font-weight: 600;
             font-size: 0.95rem;
             margin-bottom: 5px;
+            color: #ffffff;
         }
 
         .cert-provider {
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-1);
         }
 
-        @media (max-width: 768px) {
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 80px 20px 40px 20px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .heart {
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+            color: var(--accent-2);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
+        /* --- RESPONSIVE LAYOUTS --- */
+        @media (max-width: 900px) {
             .about-content {
                 grid-template-columns: 1fr;
+                gap: 40px;
             }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
             }
@@ -479,15 +518,19 @@
     </style>
 </head>
 <body>
+
+    <!-- Dynamic Glowing Background Effects -->
     <div class="background-effects">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
 
+    <!-- Active Interactive Cursor Trail -->
     <div class="cursor-trail" id="cursor"></div>
 
     <div class="container">
+        <!-- HERO HEADER -->
         <section class="hero">
             <div class="profile-container">
                 <div class="profile-ring">
@@ -495,7 +538,9 @@
                 </div>
             </div>
             <h1 class="name">Robert-Marian Dragan</h1>
-            <p class="tagline">Cyber Defense | Automation & Software Development | Top 1% TryHackMe</p>
+	    <div class="subtitle-tag">Creativity | Innovation</div>
+            <p class="tagline">I love bringing solutions in a world full of problems ;)</p>
+            
             <div class="social-links">
                 <a href="https://www.linkedin.com/in/robxxt" target="_blank" class="social-btn">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
@@ -512,68 +557,84 @@
             </div>
         </section>
 
+        <!-- PROFILE & SKILLS -->
         <section class="section">
             <h2 class="section-title">About Me</h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p>Hi! I'm <strong>Robert-Marian Dragan</strong>, an automation and software development engineer based in <strong>Vienna, Austria</strong>.</p>
-                    <br>
-                    <p>I specialize in <strong>Cyber Defense, Automation, and Software Development</strong>. My philosophy: <em>"If a task is repetitive, it deserves to be automated."</em></p>
-                    <br>
-                    <p>With <strong>5 years</strong> of experience across hobby projects, labs, and personal learning, and <strong>six months of professional experience</strong> as an intern at Schwarz IT KG (rated "Excellent"), as well as freelancing contributing to a startup, I've worked on automation projects using Python, GitHub Actions, Ansible, and StackStorm.</p>
-                    <br>
-                    <p><strong>Languages:</strong> Romanian/Spanish (native), English (professional), German (B2).</p>
+			<p>Hi! I'm <strong>Robert</strong>, an automation enthusiast with background in <strong>software development</strong>, <strong>cyber-security</strong>, <strong>automation</strong> and <strong>LLM agents orchestration</strong>.</p>
+			<p>With <strong>5 years</strong> of experience spanning personal labs, open-source projects, and self-learning, combined with a <strong>six months internship experience</strong> at Schwarz IT KG <strong>(rated "Excellent")</strong>, as well as contributing with a few startups, I have learned to approach complex projects and succesfully bring valuable solutions.</p>
                 </div>
                 <div>
-                    <h3 style="margin-bottom: 20px;">Technical Skills</h3>
+                    <h4 class="skills-group-title">Development & Automation</h4>
                     <div class="skills-container">
                         <span class="skill-tag">Python</span>
-                        <span class="skill-tag">C</span>
-                        <span class="skill-tag">C++</span>
+                        <span class="skill-tag">C / C++</span>
                         <span class="skill-tag">Bash</span>
                         <span class="skill-tag">Ansible</span>
                         <span class="skill-tag">Docker</span>
                         <span class="skill-tag">GitHub Actions</span>
                         <span class="skill-tag">StackStorm</span>
-                        <span class="skill-tag">AWS</span>
-                        <span class="skill-tag">Azure</span>
-                        <span class="skill-tag">GCP</span>
                         <span class="skill-tag">PostgreSQL</span>
+                    </div>
+
+                    <h4 class="skills-group-title">Cyber Security</h4>
+                    <div class="skills-container">
                         <span class="skill-tag">Nmap</span>
                         <span class="skill-tag">Burp Suite</span>
                         <span class="skill-tag">Metasploit</span>
                         <span class="skill-tag">Wireshark</span>
+                        <span class="skill-tag">Hydra</span>
+                        <span class="skill-tag">Linux hardening</span>
                     </div>
                 </div>
             </div>
+
+            <!-- SPIDER MAPS (Radar Charts) Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Language Map</h3>
+                    <div class="chart-container">
+                        <canvas id="languageRadar"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Core IT Skills Map</h3>
+                    <div class="chart-container">
+                        <canvas id="skillsRadar"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-number" data-target="5">0</div>
                     <div class="stat-label">Years Total</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" data-target="1">1</div>
+                    <div class="stat-number" data-target="1">0</div>
                     <div class="stat-label">Professional Years</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" data-target="22">0</div>
-                    <div class="stat-label">Certifications and Trainings</div>
+                    <div class="stat-label">Certifications / Labs</div>
                 </div>
             </div>
         </section>
 
+        <!-- CERTIFICATIONS -->
         <section class="section">
             <h2 class="section-title">Some Cool Certifications</h2>
             <div class="certifications-grid">
                 <div class="cert-item">
                     <div class="cert-icon">🟢</div>
                     <div class="cert-name">LFCS Specialization</div>
-                    <div class="cert-provider">Coursera</div>
+                    <div class="cert-provider">Coursera pearson</div>
                 </div>
                 <div class="cert-item">
                     <div class="cert-icon">☁️</div>
                     <div class="cert-name">ICCA</div>
-                    <div class="cert-provider">INE</div>
+                    <div class="cert-provider">INE Cloud Associate</div>
                 </div>
                 <div class="cert-item">
                     <div class="cert-icon">🎯</div>
@@ -598,7 +659,7 @@
                 <div class="cert-item">
                     <div class="cert-icon">🌐</div>
                     <div class="cert-name">Network Technician</div>
-                    <div class="cert-provider">Cisco</div>
+                    <div class="cert-provider">Cisco Academy</div>
                 </div>
                 <div class="cert-item">
                     <div class="cert-icon">🐍</div>
@@ -608,86 +669,91 @@
             </div>
         </section>
 
+        <!-- PROJECTS -->
         <section class="section">
             <h2 class="section-title">Some Projects</h2>
             <div class="cards-grid">
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🖥️</div>
                     <h3>Minishell</h3>
-                    <p>Unix shell implementation in C with process management, pipes and redirections.</p>
+                    <p>Unix shell implementation in C with complete process management, pipe pipelines and redirection operators.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🐳</div>
                     <h3>Inception</h3>
-                    <p>Complete Docker environment with Docker Compose, MariaDB and WordPress.</p>
+                    <p>A multi-container virtualization landscape built using Docker Compose, securing WordPress, Nginx, and MariaDB.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">💬</div>
                     <h3>ft_irc</h3>
-                    <p>Complete IRC server in C++ with support for multiple channels and clients.</p>
+                    <p>Full-fledged IRC protocol engine written in modern C++ featuring channel controls and handling multiple connections.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
-                    <div class="card-icon">网</div>
-                    <h3>Automated Documentation</h3>
-                    <p>Automated documentation generation for software projects.</p>
+                    <div class="card-icon">⚙️</div>
+                    <h3>Automated Docs</h3>
+                    <p>CI pipeline engines to continuously parse development cycles and publish self-updating Markdown document chains.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🐍</div>
-                    <h3>Develop python framework</h3>
-                    <p>Create a framework to develop python automations.</p>
+                    <h3>Automation Framework</h3>
+                    <p>Built an adaptable ecosystem engineered to structure, run, and scale reusable enterprise scripts inside Python pipelines.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🏀</div>
-                    <h3>transcendence</h3>
-                    <p>Implemented monitoring and alerting system for a multiplayer website using Prometheus and Grafana</p>
+                    <h3>Transcendence</h3>
+                    <p>Integrated metric aggregators and live graphical indicators using Grafana and Prometheus telemetry tools.</p>
                 </div>
             </div>
         </section>
 
+        <!-- LIFE CHALLENGES -->
         <section class="section">
             <h2 class="section-title">Life Challenges I Survived</h2>
             <div class="cards-grid">
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🏃</div>
                     <h3>Run 26KM</h3>
-                    <p>Pushing physical and mental limits.</p>
+                    <p>Pushed limits and ran 26 kilometers, testing personal endurance limits.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🪂</div>
                     <h3>Skydive</h3>
-                    <p>Jumped from 4,000 meeter - freefall at 200km/h.</p>
+                    <p>Jumped from 4,000 meters - experiencing freefall velocities up to 200km/h.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🇩🇪</div>
                     <h3>Learn German</h3>
-                    <p>Reached B2 level in everyday conversation.</p>
+                    <p>Acquired conversation and administrative fluency matching B2 milestones.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🌿</div>
                     <h3>Hippie Community</h3>
-                    <p>Lived in a hippie community for almost two weeks.</p>
+                    <p>Lived in a remote hippie community structure for almost two weeks.</p>
                 </div>
                 <div class="card" onclick="animateCard(this)">
                     <div class="card-icon">🎓</div>
-                    <h3>Graduate from Dream School</h3>
-                    <p>Studied and graduated from 42Heilbronn - the school of my dreams.</p>
+                    <h3>Dream School Graduation</h3>
+                    <p>Graduated from 42Heilbronn - learning on rigorous peer-to-peer programming pipelines.</p>
                 </div>
             </div>
         </section>
 
+        <!-- FOOTER -->
         <footer>
-            <p>Made with<span class="heart"> ❤️ </span> Robert-Marian Dragan</p>
+            <p>Made with <span class="heart">❤️</span> by Robert-Marian Dragan</p>
         </footer>
     </div>
 
     <script>
+        /* --- Cursor Trail --- */
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX - 10 + 'px';
-            cursor.style.top = e.clientY - 10 + 'px';
-            cursor.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            cursor.style.left = e.clientX - 7 + 'px';
+            cursor.style.top = e.clientY - 7 + 'px';
+            cursor.style.background = `linear-gradient(135deg, var(--accent-1), var(--accent-2))`;
         });
 
+        /* --- Scroll Animation Fades --- */
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -702,32 +768,21 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.card, .stat-item, .about-content > *, .cert-item').forEach(el => {
+        document.querySelectorAll('.card, .stat-item, .about-content > *, .cert-item, .chart-card').forEach(el => {
             el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'all 0.6s ease';
+            el.style.transform = 'translateY(25px)';
+            el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
             observer.observe(el);
         });
 
         function animateCard(card) {
-            card.style.transform = 'scale(0.95) rotate(2deg)';
+            card.style.transform = 'scale(0.97) rotate(1deg)';
             setTimeout(() => {
-                card.style.transform = 'scale(1) rotate(0deg)';
+                card.style.transform = '';
             }, 200);
         }
 
-        function handleSubmit(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('.submit-btn');
-            btn.textContent = '¡Enviado! ✨';
-            btn.style.background = 'linear-gradient(135deg, #00ff88, #00d4ff)';
-            setTimeout(() => {
-                btn.textContent = 'Enviar Mensaje';
-                btn.style.background = '';
-                e.target.reset();
-            }, 3000);
-        }
-
+        /* --- Stats Counting Animation --- */
         function animateValue(element, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -746,7 +801,7 @@
                 if (entry.isIntersecting) {
                     const target = entry.target;
                     const end = parseInt(target.dataset.target);
-                    animateValue(target, 0, end, 2000);
+                    animateValue(target, 0, end, 1800);
                     statObserver.unobserve(target);
                 }
             });
@@ -754,6 +809,101 @@
 
         document.querySelectorAll('.stat-number').forEach(num => {
             statObserver.observe(num);
+        });
+
+        /* =========================================================
+           RADAR CHARTS (SPIDER MAPS) CONFIGURATION
+           ========================================================= */
+
+        // Global Chart.js configuration defaults for matching dark-gold styling
+        Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+        Chart.defaults.font.size = 11;
+
+        const radarOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        display: false, // Keep it clean
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.08)' // Radial lines
+                    },
+                    angleLines: {
+                        color: 'rgba(255, 255, 255, 0.15)' // Spokes
+                    },
+                    pointLabels: {
+                        color: '#ffffff',
+                        font: {
+                            family: "'Outfit', sans-serif",
+                            size: 11,
+                            weight: '500'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hide legend box since it's only one dataset
+                },
+                tooltip: {
+                    backgroundColor: '#111115',
+                    titleColor: '#ffb703',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(255, 183, 3, 0.3)',
+                    borderWidth: 1
+                }
+            }
+        };
+
+        // 1. Language Radar Chart
+        // Mapping scale 1-5 roughly to levels (A2: 2, B2: 3.5, C2/Native: 5)
+        const languageCtx = document.getElementById('languageRadar').getContext('2d');
+        new Chart(languageCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Romanian (Native)', 'Spanish (Native)', 'English (C1)', 'German (B2)', 'French (A2)'],
+                datasets: [{
+                    label: 'Language Proficiency',
+                    data: [5, 5, 4, 3.5, 1],
+                    backgroundColor: 'rgba(255, 183, 3, 0.15)', // Light fill matching accent
+                    borderColor: '#ffb703', // Solid amber stroke
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#ffb703',
+                    pointHoverBackgroundColor: '#ffb703',
+                    pointHoverBorderColor: '#ffffff',
+                    pointRadius: 4
+                }]
+            },
+            options: radarOptions
+        });
+
+        // 2. IT Skills Radar Chart (Adjust the scale/points here as you please!)
+        const skillsCtx = document.getElementById('skillsRadar').getContext('2d');
+        new Chart(skillsCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Programming', 'Automation', 'Linux SysAdmin', 'Cyber Security', 'Networing', 'Containers'],
+                datasets: [{
+                    label: 'Skill Level',
+                    data: [4, 4, 3, 3, 3, 3], // Feel free to modify these numbers (1-5 range)
+                    backgroundColor: 'rgba(251, 133, 0, 0.15)', // Light fill matching orange accent
+                    borderColor: '#fb8500', // Solid orange stroke
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#fb8500',
+                    pointHoverBackgroundColor: '#fb8500',
+                    pointHoverBorderColor: '#ffffff',
+                    pointRadius: 4
+                }]
+            },
+            options: radarOptions
         });
     </script>
 </body>
