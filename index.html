@@ -952,7 +952,7 @@
                 const item = currentQueue[itemIndex];
                 if (item.type === 'char') {
                     targetContainer.appendChild(document.createTextNode(item.value));
-                    setTimeout(() => renderStep(targetContainer, itemIndex + 1, currentQueue, callback), 8);
+                    setTimeout(() => renderStep(targetContainer, itemIndex + 1, currentQueue, callback), 25);
                 } else if (item.type === 'element') {
                     const newEl = item.tag;
                     targetContainer.appendChild(newEl);
