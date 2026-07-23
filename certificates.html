@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificates - Robert-Marian Dragan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #050507;
+            --bg-gradient-1: #0a0a10;
+            --bg-gradient-2: #030305;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 183, 3, 0.08);
+            --accent-1: #ffb703; /* Amber Gold */
+            --accent-2: #fb8500; /* Warm Orange */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f8fafc;
+            --bg-gradient-1: #ffffff;
+            --bg-gradient-2: #e2e8f0;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(217, 119, 6, 0.08);
+            --accent-1: #d97706;
+            --accent-2: #ea580c;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: rgba(15, 23, 42, 0.12);
+            --shadow-color: rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- THEME TOGGLE BUTTON --- */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-1);
+        }
+
+        .theme-toggle-btn svg { width: 20px; height: 20px; }
+
+        [data-theme="light"] .moon-icon { display: none; }
+        [data-theme="light"] .sun-icon { display: block; }
+        [data-theme="dark"] .sun-icon { display: none; }
+        [data-theme="dark"] .moon-icon { display: block; }
+        :root:not([data-theme]) .sun-icon { display: none; }
+        :root:not([data-theme]) .moon-icon { display: block; }
+
+        /* --- UNIVERSE BACKGROUND --- */
+        .background-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+        }
+
+        #space-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.85;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .back-btn:hover {
+            transform: translateX(-4px);
+            border-color: var(--accent-1);
+            background: var(--bg-card-hover);
+        }
+
+        .cert-title-area {
+            text-align: right;
+        }
+
+        .cert-title-area h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cert-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-1);
+        }
+
+        /* --- CERTIFICATE QUICK SWITCHER BAR --- */
+        .cert-switcher-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            scrollbar-width: thin;
+        }
+
+        .cert-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .cert-chip:hover {
+            border-color: var(--accent-1);
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .cert-chip.active {
+            border-color: var(--accent-1);
+            background: var(--accent-1);
+            color: #050507;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(255, 183, 3, 0.3);
+        }
+
+        /* --- PDF DISPLAY & CONTROL BAR --- */
+        .viewer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed var(--border-color);
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--accent-1);
+            background: var(--bg-card-hover);
+            color: var(--accent-1);
+        }
+
+        .page-info {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+            min-height: 400px;
+            position: relative;
+        }
+
+        canvas {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .status-msg {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 25px 20px 5px 20px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+
+        .heart {
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+            color: var(--accent-2);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
+        @media (max-width: 650px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .cert-title-area { text-align: left; }
+            .toolbar { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <!-- Canvas Background -->
+    <div class="background-effects">
+        <canvas id="space-canvas"></canvas>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to Portfolio</a>
+            <div class="cert-title-area">
+                <h1 id="cert-display-title">Certificate Viewer</h1>
+                <div class="cert-subtitle" id="cert-filename">// assets/document.pdf</div>
+            </div>
+        </div>
+
+        <!-- Dynamic Quick-Switch Navigation Chips -->
+        <div class="cert-switcher-bar" id="cert-chips-container"></div>
+
+        <div class="viewer-card">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="tool-btn" id="prev-page">← Prev</button>
+                    <span class="page-info">Page <span id="page-num">1</span> / <span id="page-count">1</span></span>
+                    <button class="tool-btn" id="next-page">Next →</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="tool-btn" id="zoom-out"> - </button>
+                    <span class="page-info" id="zoom-level">100%</span>
+                    <button class="tool-btn" id="zoom-in"> + </button>
+                    <a id="download-btn" class="tool-btn" download target="_blank">Download PDF ↗</a>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <div id="status-message" class="status-msg">Loading Certificate...</div>
+                <canvas id="pdf-render" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <p>Made with <span class="heart">❤️</span></p>
+        </footer>
+    </div>
+
+    <script>
+        /* =========================================================
+           1. ADD / MANAGE YOUR CERTIFICATES HERE
+           Just add the filename (without extension or path)
+        ========================================================= */
+        const CERTIFICATES = [
+            'Praktikum_Zeugnis',
+            'Certificate_core_curriculum_rdragan'
+        ];
+
+        /* --- THEME CONTROLLER --- */
+        let starRgb = '255, 255, 255';
+
+        function getPreferredTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) return savedTheme;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            starRgb = theme === 'light' ? '15, 23, 42' : '255, 255, 255';
+        }
+
+        setTheme(getPreferredTheme());
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        /* --- CERTIFICATE CHIPS GENERATOR --- */
+        function renderCertificateChips(currentActive) {
+            const container = document.getElementById('cert-chips-container');
+            container.innerHTML = '';
+
+            CERTIFICATES.forEach(cert => {
+                const chip = document.createElement('a');
+                chip.href = `#${cert}`;
+                chip.className = `cert-chip ${cert === currentActive ? 'active' : ''}`;
+                chip.textContent = cleanTitle(cert);
+                container.appendChild(chip);
+            });
+        }
+
+        /* --- PDF RENDERER (PDF.JS) --- */
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null,
+            pageNum = 1,
+            pageRendering = false,
+            pageNumPending = null,
+            scale = 1.2,
+            canvas = document.getElementById('pdf-render'),
+            ctx = canvas.getContext('2d'),
+            statusMsg = document.getElementById('status-message');
+
+        function cleanTitle(name) {
+            return name.replace(/_/g, ' ').replace(/-/g, ' ');
+        }
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(page => {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(() => {
+                    pageRendering = false;
+                    statusMsg.style.display = 'none';
+                    canvas.style.display = 'block';
+
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+            document.getElementById('zoom-level').textContent = Math.round(scale * 100 / 1.2) + '%';
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function loadPDF() {
+            // Read hash and clean extension
+            let certName = decodeURIComponent(window.location.hash.substring(1));
+            if (!certName) certName = CERTIFICATES[0] || 'Praktikum_Zeugnis';
+
+            certName = certName.replace(/\.pdf$/i, '');
+
+            // Update top bar chips active status
+            renderCertificateChips(certName);
+
+            const pdfPath = `assets/${certName}.pdf`;
+
+            // Update Titles
+            document.getElementById('cert-display-title').textContent = cleanTitle(certName);
+            document.getElementById('cert-filename').textContent = `// ${pdfPath}`;
+            document.getElementById('download-btn').href = pdfPath;
+
+            statusMsg.style.display = 'block';
+            statusMsg.textContent = 'Loading Certificate...';
+            canvas.style.display = 'none';
+
+            pdfjsLib.getDocument(pdfPath).promise.then(pdfDoc_ => {
+                pdfDoc = pdfDoc_;
+                document.getElementById('page-count').textContent = pdfDoc.numPages;
+                pageNum = 1;
+                renderPage(pageNum);
+            }).catch(err => {
+                statusMsg.style.display = 'block';
+                statusMsg.textContent = `Error: Could not find or load "${pdfPath}"`;
+                console.error(err);
+            });
+        }
+
+        // Toolbar Events
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            scale += 0.2;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            if (scale <= 0.6) return;
+            scale -= 0.2;
+            queueRenderPage(pageNum);
+        });
+
+        window.addEventListener('hashchange', loadPDF);
+        window.addEventListener('load', loadPDF);
+
+        /* --- UNIVERSE CANVAS ANIMATION --- */
+        const spaceCanvas = document.getElementById('space-canvas');
+        const spaceCtx = spaceCanvas.getContext('2d');
+        let cosmicElements = [];
+
+        function resizeCanvas() {
+            spaceCanvas.width = window.innerWidth;
+            spaceCanvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Star {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * spaceCanvas.height;
+            }
+            reset() {
+                this.x = Math.random() * spaceCanvas.width;
+                this.y = spaceCanvas.height + 10;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speed = Math.random() * 0.4 + 0.1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < -10) this.reset();
+            }
+            draw() {
+                spaceCtx.fillStyle = `rgba(${starRgb}, ${this.opacity})`;
+                spaceCtx.beginPath();
+                spaceCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                spaceCtx.fill();
+            }
+        }
+
+        function initUniverse() {
+            cosmicElements = [];
+            for (let i = 0; i < 120; i++) cosmicElements.push(new Star());
+        }
+        initUniverse();
+
+        function animateUniverse() {
+            spaceCtx.clearRect(0, 0, spaceCanvas.width, spaceCanvas.height);
+            cosmicElements.forEach(el => {
+                el.update();
+                el.draw();
+            });
+            requestAnimationFrame(animateUniverse);
+        }
+        animateUniverse();
+    </script>
+</body>
+</html>
